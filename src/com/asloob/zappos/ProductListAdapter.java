@@ -2,6 +2,8 @@ package com.asloob.zappos;
 
 import java.util.List;
 
+import com.fedorvlasov.lazylist.ImageLoader;
+
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +18,7 @@ public class ProductListAdapter extends ArrayAdapter<Product>{
 	Context mContext;
 	int mLayoutId;
 	List<Product> mProducts;
+	ImageLoader mImageLoader;
 
 	public ProductListAdapter(Context context, int resource,
 			List<Product> objects) {
@@ -23,6 +26,8 @@ public class ProductListAdapter extends ArrayAdapter<Product>{
 		mContext = context;
 		mLayoutId = resource;
 		mProducts = objects;
+
+		mImageLoader = new ImageLoader(context);
 	}
 
 	@Override
@@ -37,6 +42,8 @@ public class ProductListAdapter extends ArrayAdapter<Product>{
 
 		productNameTV.setText(mProducts.get(position).getProductName());
 		brandNameTV.setText(mProducts.get(position).getBrandName());
+
+		mImageLoader.DisplayImage(mProducts.get(position).getThumbnailUrl(), productImage);
 		Log.v(ProductListAdapter.class.getName(), "position = " + position);
 		return row;
 	}
