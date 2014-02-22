@@ -4,11 +4,13 @@ import java.util.ArrayList;
 
 import com.asloob.zappos.network.RequestZappos;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
@@ -18,16 +20,24 @@ public class MainActivity extends ActionBarActivity {
 
 	final boolean DEBUG = true;
 	final String TAG = MainActivity.class.getName();
+	ListView mProductsListView;
+	ArrayList<Product> mProducts;
+	ProductListAdapter mProductsAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		initUI();
 
 		String query = "boots";
 		LOGV("query =" + query);
-		ProductSearch search = new ProductSearch();
+		ProductSearch search = new ProductSearch(this);
 		search.execute(query);
+	}
+
+	void initUI() {
+		mProductsListView = (ListView) findViewById(R.id.productListView);
 	}
 
 	@Override
@@ -69,6 +79,11 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	class ProductSearch extends AsyncTask<String, Void, Void> {
+		Context mContext;
+		public ProductSearch(Context context) {
+			super();
+			this.mContext = context;
+		}
 
 		@Override
 		protected Void doInBackground(String... query) {
@@ -77,9 +92,17 @@ public class MainActivity extends ActionBarActivity {
 			LOGV("url = " + url);
 			RequestZappos requestZappos = new RequestZappos();
 			String response = requestZappos.sendRequestWithPath(url);
-			ArrayList<Product> products = Parser.parseProducts(response);
-			LOGV("size = " + products.size());
+			mProducts = Parser.parseProducts(response);
+			LOGV("size = " + mProducts.size());
 			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			mProductsAdapter = new ProductListAdapter(mContext, R.layout.product_list_item, mProducts);
+			mProductsAdapter.notifyDataSetChanged();
+			mProductsListView.setAdapter(mProductsAdapter);
 		}
 
 	}
