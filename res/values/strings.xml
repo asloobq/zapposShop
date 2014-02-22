@@ -4,5 +4,7 @@
     <string name="app_name">ZapposShop</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="action_search">Search</string>
+    <string name="api_key">a73121520492f88dc3d33daf2103d7574f1a3166</string>
 
 </resources>
