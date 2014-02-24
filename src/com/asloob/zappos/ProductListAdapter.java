@@ -84,6 +84,7 @@ public class ProductListAdapter extends ArrayAdapter<Product>{
 				//Add to saved objects
 				(new SavedProduct(mContext, productId, mProducts.get(position).getProductName())).save();
 				((ImageButton)v).setImageResource(android.R.drawable.btn_star_big_on);
+				((MainActivity) mContext).startProductService();
 			}
 		}
 	};

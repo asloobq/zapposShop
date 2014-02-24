@@ -10,6 +10,8 @@ import com.asloob.zappos.sugar.SavedProduct;
 
 import exceptions.RequestThrottledException;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;

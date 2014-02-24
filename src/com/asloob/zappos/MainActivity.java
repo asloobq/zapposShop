@@ -6,6 +6,8 @@ import com.asloob.zappos.network.RequestZappos;
 
 import exceptions.RequestThrottledException;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -46,8 +48,7 @@ public class MainActivity extends ActionBarActivity {
 		ProductSearch search = new ProductSearch(this);
 		search.execute(query);
 
-		Intent intent = new Intent(this, ProductService.class);
-		startService(intent);
+		startProductService();
 	}
 
 	void initUI() {
@@ -132,6 +133,23 @@ public class MainActivity extends ActionBarActivity {
 			}
 		}
 
+	}
+
+	public void startProductService() {
+		if(!isMyServiceRunning()) {
+			Intent intent = new Intent(this, ProductService.class);
+			startService(intent);
+		}
+	}
+
+	private boolean isMyServiceRunning() {
+	    ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+	    for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+	        if (ProductService.class.getName().equals(service.service.getClassName())) {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
 
 	void LOGV(String msg) {
