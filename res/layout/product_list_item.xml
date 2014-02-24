@@ -29,4 +29,13 @@
         android:text="Brand Name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <ImageButton
+        android:id="@+id/saveImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:src="@android:drawable/btn_star_big_off"
+        android:background="@android:color/white" />
+
 </RelativeLayout>

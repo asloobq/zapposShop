@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.asloob.zappos.network.RequestZappos;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,8 @@ public class MainActivity extends ActionBarActivity {
 
 	final boolean DEBUG = true;
 	final String TAG = MainActivity.class.getName();
+	public static final String PREFS_NAME = "SAVED_PRODUCTS";
+
 	ListView mProductsListView;
 	ArrayList<Product> mProducts;
 	ProductListAdapter mProductsAdapter;
@@ -29,7 +32,11 @@ public class MainActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		initUI();
+	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
 		String query = "boots";
 		LOGV("query =" + query);
 		ProductSearch search = new ProductSearch(this);
