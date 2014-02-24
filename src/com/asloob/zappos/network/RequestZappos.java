@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.SocketTimeoutException;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -20,13 +21,15 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import exceptions.RequestThrottledException;
+
 import android.util.Log;
 
 public class RequestZappos {
 
 	final String TAG = RequestZappos.class.getName();
 
-public String sendRequestWithPath(String path) {
+public String sendRequestWithPath(String path) throws RequestThrottledException {
 
 		String result = "";
 		try {
@@ -66,8 +69,19 @@ public String sendRequestWithPath(String path) {
 				} catch (Exception e) {
 					e.printStackTrace();
 					retry--;
-					Thread.sleep(500);
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
+			}
+			StatusLine line = response.getStatusLine();
+			Log.d(TAG, "status " + line.getStatusCode());
+			if(line.getStatusCode() == 401) {
+
+				throw new RequestThrottledException();
 			}
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					response.getEntity().getContent()));
@@ -85,9 +99,6 @@ public String sendRequestWithPath(String path) {
 		} catch (SocketTimeoutException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return result;

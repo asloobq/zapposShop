@@ -4,7 +4,10 @@ import java.util.ArrayList;
 
 import com.asloob.zappos.network.RequestZappos;
 
+import exceptions.RequestThrottledException;
+
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.Toast;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
@@ -41,6 +45,9 @@ public class MainActivity extends ActionBarActivity {
 		LOGV("query =" + query);
 		ProductSearch search = new ProductSearch(this);
 		search.execute(query);
+
+		Intent intent = new Intent(this, ProductService.class);
+		startService(intent);
 	}
 
 	void initUI() {
@@ -85,31 +92,44 @@ public class MainActivity extends ActionBarActivity {
 	    }
 	}
 
-	class ProductSearch extends AsyncTask<String, Void, Void> {
-		Context mContext;
+	class ProductSearch extends AsyncTask<String, Void, Integer> {
+		private Context mContext;
+		private static final int OK = 0;
+
 		public ProductSearch(Context context) {
 			super();
 			this.mContext = context;
 		}
 
 		@Override
-		protected Void doInBackground(String... query) {
+		protected Integer doInBackground(String... query) {
 			//form url
 			String url = "http://api.zappos.com/Search?term=" + query[0] + "&key=" + getString(R.string.api_key);
 			LOGV("url = " + url);
 			RequestZappos requestZappos = new RequestZappos();
-			String response = requestZappos.sendRequestWithPath(url);
+			String response = null;
+			try {
+				response = requestZappos.sendRequestWithPath(url);
+			} catch (RequestThrottledException e) {
+				return RequestThrottledException.ID;
+			}
 			mProducts = Parser.parseProducts(response);
 			LOGV("size = " + mProducts.size());
-			return null;
+			return OK;
 		}
 
 		@Override
-		protected void onPostExecute(Void result) {
+		protected void onPostExecute(Integer result) {
 			super.onPostExecute(result);
-			mProductsAdapter = new ProductListAdapter(mContext, R.layout.product_list_item, mProducts);
-			mProductsAdapter.notifyDataSetChanged();
-			mProductsListView.setAdapter(mProductsAdapter);
+			LOGV("result = " + result);
+			if(result == OK) {
+				mProductsAdapter = new ProductListAdapter(mContext, R.layout.product_list_item, mProducts);
+				mProductsAdapter.notifyDataSetChanged();
+				mProductsListView.setAdapter(mProductsAdapter);
+			} else if (result == RequestThrottledException.ID) {
+				//Display pop up
+				Toast.makeText(mContext, "Requests Throttled. Try again later", Toast.LENGTH_SHORT).show();
+			}
 		}
 
 	}

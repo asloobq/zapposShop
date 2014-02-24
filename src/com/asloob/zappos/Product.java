@@ -70,4 +70,13 @@ public class Product {
 		return mProductId;
 	}
 
+	public boolean isOnDiscount() {
+		String val =  mPercentOff.replace("%", "");
+		Integer discount =  Integer.parseInt(val);
+		if(discount >= 20) {
+			return true;
+		}
+		return false;
+	}
+
 }
